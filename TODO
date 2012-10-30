@@ -1,0 +1,12 @@
+A to do list
+
+1.
+At the moment, only .srt subtitles are supported
+other subtitle formats could be converted into the .srt format with the following mplayer command:
+mplayer -dumpsrtsub -sub subtitle_filename
+not tested yet
+
+2.
+Create a setup script for an easier installation
+Maybe also a Debian package
+
