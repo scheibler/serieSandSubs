@@ -49,8 +49,9 @@ A few optional python packages
 Installation
 ------------
 
-1. sudo apt-get install python-pyasn1 python-dnspython python-setuptools mplayer
+1. sudo apt-get install python-pyasn1 python-dnspython python-setuptools mplayer git
 2. sudo easy_install python-magic sleekxmpp configobj
-3. Copy the config files from the config folder into the MPlayer folder ~/.mplayer/
-4. start the program either with "python serieSandSubs/main.py" or "./serieSandSubs/main.py"
+3. git clone https://github.com/urdahn/serieSandSubs.git
+4. Copy the config files from the config folder into the MPlayer folder ~/.mplayer/
+5. start the program either with "python serieSandSubs/main.py" or "./serieSandSubs/main.py"
 
