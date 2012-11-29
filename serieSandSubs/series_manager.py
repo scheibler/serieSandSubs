@@ -142,7 +142,7 @@ class SeriesManager():
         try:
             entry = stored_series[path_name]
         except KeyError as e:
-            logging.error("SeriesManager.get_playback_position: The series " + path_name + " does not exist\n", e)
+            logging.error("SeriesManager.get_playback_position: The series " + path_name + " does not exist\n" + str(e))
             return 0.0, 0.0
         try:
             if entry['episode'] != file_name:
@@ -152,13 +152,13 @@ class SeriesManager():
                 time = entry['time']
                 return (float(time[0]), float(time[1]))
         except KeyError as e:
-            logging.error("SeriesManager.get_playback_position: The key does not exist", e)
+            logging.error("SeriesManager.get_playback_position: The key does not exist" + str(e))
             return 0.0, 0.0
         except IndexError as e:
-            logging.error("SeriesManager.get_playback_position: The time touple is not complete", e)
+            logging.error("SeriesManager.get_playback_position: The time touple is not complete" + str(e))
             return 0.0, 0.0
         except ValueError as e:
-            logging.error("SeriesManager.get_playback_position: One of the time values is malformed", e)
+            logging.error("SeriesManager.get_playback_position: One of the time values is malformed" + str(e))
             return 0.0, 0.0
 
 
@@ -168,7 +168,7 @@ class SeriesManager():
         try:
             entry = stored_series[path_name]
         except KeyError as e:
-            logging.critical("SeriesManager.update_playback_position: The series " + path_name + " does not exist\n", e)
+            logging.critical("SeriesManager.update_playback_position: The series " + path_name + " does not exist\n" + str(e))
             return False
         try:
             if entry['episode'] != file_name:
@@ -178,7 +178,7 @@ class SeriesManager():
                 entry['time'] = position, length
                 return self.write_series_file(stored_series)
         except KeyError as e:
-            logging.error("SeriesManager.update_playback_position: The key does not exist", e)
+            logging.error("SeriesManager.update_playback_position: The key does not exist" + str(e))
             return False
 
 
@@ -203,7 +203,7 @@ class SeriesManager():
         try:
             stored_series = ConfigObj(config['paths']['series_file'], indent_type='    ')
         except ParseError as e:
-            logging.critical("SeriesManager.read_series_file: The file " + config['paths']['series_file'] + " is malformed, parsing not possible\n", e)
+            logging.critical("SeriesManager.read_series_file: The file " + config['paths']['series_file'] + " is malformed, parsing not possible\n" + str(e))
             helper.clean_and_exit(4)
         return stored_series
 
@@ -212,7 +212,7 @@ class SeriesManager():
         try:
             instance.write()
         except e:
-            logging.critical("SeriesManager.write_series_file: Can't write the current position into the stored series file", e)
+            logging.critical("SeriesManager.write_series_file: Can't write the current position into the stored series file" + str(e))
             return False
         return True
 

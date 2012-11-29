@@ -26,7 +26,7 @@ class Config():
         """
         create the settings folder and load the preferences
         the settings folder is ~/.mplayer which already should be created by the mplayer
-        the config file is the wrapper_config
+        the config file name is serieSandSubs.conf
         """
         logging.info("start config file parsing")
         settings_folder = os.path.expanduser("~") + "/.mplayer/"
@@ -34,17 +34,17 @@ class Config():
             try:
                 os.mkdir(settings_folder)
             except OSError as e:
-                logging.critical("The settings folder ", settings_folder, " could not be created")
+                logging.critical("The settings folder " + settings_folder + " could not be created")
                 helper.clean_and_exit(2)
         # load the config file
-        config_file = settings_folder + "wrapper_config"
+        config_file = settings_folder + "serieSandSubs.conf"
         if os.path.exists(config_file) == False:
-            logging.critical("The config file ", config_file, " must be created first")
+            logging.critical("The config file " + config_file + " must be created first")
             helper.clean_and_exit(2)
         try:
             config = ConfigObj(config_file)
         except ParseError as e:
-            logging.critical("The config file ", config_file, " could not be parsed\n", e)
+            logging.critical("The config file " + config_file + " could not be parsed\n", e)
             helper.clean_and_exit(2)
 
         # check if all necessary data is specified

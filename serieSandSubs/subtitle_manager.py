@@ -72,7 +72,7 @@ class SubtitleManager(sleekxmpp.ClientXMPP):
         try:
             sub_file = codecs.open(sub_filename, "r", encoding)
         except IOError as e:
-            logging.critical("Can't open the subtitle file\n", e)
+            logging.critical("Can't open the subtitle file\n" + str(e))
             helper.clean_and_exit(3)
         except LookupError as e:
             logging.warning("Encoding of the subtitle file could not be detected\nTry to open it with UTF-8 encoding")
@@ -93,7 +93,7 @@ class SubtitleManager(sleekxmpp.ClientXMPP):
                     start = self.transform_time(times[0])
                     end = self.transform_time(times[1])
                 except:
-                    logging.warning("Could not parse the subtitle file ", sub_filename, "\nError in the line ", line, " (subtitle ", i+1, ")\n")
+                    logging.warning("Could not parse the subtitle file " + sub_filename + "\nError in the line " + str(line) + " (subtitle " + str(i+1) + ")\n")
                     if error_counter >= 10:
                         logging.critical("Too many errors in the subtitle file")
                         helper.clean_and_exit(3)

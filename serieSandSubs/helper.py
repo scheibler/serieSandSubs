@@ -96,7 +96,10 @@ def clean_and_exit(exit_code):
         4. errors in the series manager class
         5 = errors in the single file manager class
     """
-    config = sys.modules['Config'].get_config()
+    try:
+        config = sys.modules['Config'].get_config()
+    except KeyError as e:
+        sys.exit(exit_code)
     if config['subtitles']['instance'] != None:
         config['subtitles']['instance'].end()
     sys.exit(exit_code)

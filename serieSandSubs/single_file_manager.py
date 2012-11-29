@@ -79,7 +79,7 @@ class SingleFileManager():
         try:
             positions = ConfigObj(self.positions_file)
         except ParseError as e:
-            logging.critical("SingleFileManager.read_series_file: The file " + positions_file + " is malformed, parsing not possible\n", e)
+            logging.critical("SingleFileManager.read_series_file: The file " + positions_file + " is malformed, parsing not possible\n" + str(e))
             helper.clean_and_exit(5)
         return positions
 
@@ -88,7 +88,7 @@ class SingleFileManager():
         try:
             instance.write()
         except e:
-            logging.critical("SingleFileManager.write_series_file: Can't write the current position into the positions file", e)
+            logging.critical("SingleFileManager.write_series_file: Can't write the current position into the positions file" + str(e))
             return False
         return True
 

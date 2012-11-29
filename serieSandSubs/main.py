@@ -185,7 +185,7 @@ if os.path.exists(mplayer_command_fifo) == False:
     try:
         os.mkfifo(mplayer_command_fifo)
     except OSError as e:
-        logging.critical("Can't create Mplayer command input fifo\n", e)
+        logging.critical("Can't create Mplayer command input fifo\n" + str(e))
         helper.clean_and_exit(1)
 
 # create Mplayer output file
@@ -193,7 +193,7 @@ mplayer_output_filename = config['paths']['mplayer_output']
 try:
     mplayer_output_file = open(mplayer_output_filename,"w")
 except IOError as e:
-    logging.critical("Can't create Mplayer output file\n", e)
+    logging.critical("Can't create Mplayer output file\n" + str(e))
     helper.clean_and_exit(1)
 
 # create the file for the series
@@ -202,7 +202,7 @@ if os.path.exists(config['paths']['series_file']) == False:
         last_positions_file = open(config['paths']['series_file'],"w")
         last_positions_file.close()
     except IOError as e:
-        logging.critical("Can't create file for the series file\n", e)
+        logging.critical("Can't create file for the series file\n" + str(e))
         helper.clean_and_exit(1)
 
 # create the file for the single files
@@ -211,7 +211,7 @@ if os.path.exists(config['paths']['single_pos_file']) == False:
         last_positions_file = open(config['paths']['single_pos_file'],"w")
         last_positions_file.close()
     except IOError as e:
-        logging.critical("Can't create file for the single file\n", e)
+        logging.critical("Can't create file for the single file\n" + str(e))
         helper.clean_and_exit(1)
 
 
@@ -242,7 +242,7 @@ if args.add_series == True and os.path.isfile(media_file) == True:
     config['media_manager']['instance'].store_series(config['paths']['full_media_file'], True, args.persistent)
 # 2. same situation as in option 1. but the media file does not exist, so exit the program
 elif args.add_series == True and os.path.isfile(media_file) == False:
-    logging.critical("Adding a new series wwas not possible, file ", media_file, " not found")
+    logging.critical("Adding a new series wwas not possible, file " + media_file + " not found")
     helper.clean_and_exit(1)
 # 3. the user don't wants to add a new series but also entered no valid media file
 # so the user wants to view the next episode of a saved series
@@ -274,7 +274,7 @@ while True:
     if args.subtitle_file != None:
         subtitle_filename = args.subtitle_file
         if os.path.exists(subtitle_filename) == False:
-            logging.critical("The entered subtitle file ", subtitle_filename, " does not exist")
+            logging.critical("The entered subtitle file " + subtitle_filename + " does not exist")
             helper.clean_and_exit(1)
     else:
         media_file_without_ext = os.path.splitext(config['paths']['full_media_file'])
@@ -304,7 +304,7 @@ while True:
                             "-ss", str(start_at),"-quiet", "-input", "file=" + mplayer_command_fifo,
                             config['paths']['full_media_file']], stdout=mplayer_output_file, stderr=mplayer_error_path)
     except OSError as e:
-        logging.critical("Can't start Mplayer\n", e)
+        logging.critical("Can't start Mplayer\n" + str(e))
         mplayer_output_file.close()
         helper.clean_and_exit(1)
 
