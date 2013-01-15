@@ -59,6 +59,8 @@ class SeriesManager():
                 print "   Next episode: Currently no episode available\n"
             else:
                 pos, of = self.get_file_position(matched_series[s]['episode'])
+                if pos == -1:
+                    continue
                 if time[1] > 0:
                     percent = (time[0]/time[1])*100
                 else:
@@ -223,7 +225,7 @@ class SeriesManager():
             files_in_folder = os.listdir(os.path.dirname(file_name))
         except OSError as e:
             logging.warning("SeriesManager.get_file_position: " + os.path.dirname(file_name) + " does not exist")
-            return None
+            return -1, -1
         filtered_files = []
         for f in files_in_folder:
             for t in config['media_manager']['series file types']:
