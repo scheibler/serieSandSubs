@@ -11,8 +11,13 @@ This program has three main functions:
 
 1. Subtitle distribution
 This was the main reason why I created the program. Cause I can't read the movie and series subtitles I searched for a possibility to make them accessible.
-The best solution for that seems to send the subtitles via XMPP. So it's possible to receive them by any device which can handle the XMPP protocol.
-You must create at least two accounts: one for the sender and another for the recipient and enter their data into the serieSandSubs.conf file in the config folder.
+The best solution for that seems to send the subtitles via XMPP. So it's possible to receive them by
+any device which can handle the XMPP protocol.
+
+You must create at least two accounts: one for the sender and another for the recipient and enter
+their data into the serieSandSubs.conf file in the config folder. If you have no jabber accounts yet
+you can either create them for example at www.jabber.org or setup an own jabber server called
+ejabberd (easy for Debian).
 
 I receive the subs with my iPhone and the app IM+. This app works great with the screen reader VoiceOver. The incoming messages are spoken automatically.
 At the moment you need .srt subtitle files as source. For german subs I can recommend www..subcentral.de
@@ -23,8 +28,9 @@ But a series must be added by hand. To do this you use the parameter "-a" and th
 
 3. Regardless if it's a series or not the system will memorize the playback position of all media files. So it's easy to resume a half watched video or audio book. This is done automatically when you start the playback again. If you want to play the file from beginning, use the -f parameter.
 
-The other file in the config menu named input.conf does not directly belong to my program. It's a MPlayer config file where the user can  specify shortcuts for for MPlayer functions.
-I defined:
+The other file in the config menu named input.conf does not directly belong to my program. It's a MPlayer config file where the user can  specify shortcuts for MPlayer functions.
+
+I've defined:
 * s: to jump between audio streams if more than one is available (often used to change the language)
 * n: to set the playback speed back to normal (can be changed with [] and {})
 
@@ -32,18 +38,18 @@ I defined:
 Dependencies
 ------------
 
-Pyhton version >= 2.7
+Python version >= 2.7
 The installer for python modules (easy_install / setuptools)
 MPlayer
 
-Pyhton modules
+Python modules
 * sleekxmpp: XMPP library
 * magic: get the encoding of text files
 * ConfigOBJ: Parse and write ini files
 
 A few optional python packages
 * pyasn1: For the verification of SSL certificates
-*dnspython: look up domain names
+* dnspython: look up domain names
 
 
 Installation
@@ -54,4 +60,11 @@ Installation
 3. git clone https://github.com/urdahn/serieSandSubs.git
 4. Copy the config files from the config folder into the MPlayer folder ~/.mplayer/
 5. start the program either with "python serieSandSubs/main.py" or "./serieSandSubs/main.py"
+
+Usage
+-----
+
+You can use MPlayer's standard key combinations to control the playback. If you've specified a
+subtitles file you can switch off the output by pressing space for pause, wait 1-2 seconds and press
+space again. If you want to resume the jabber output, simply repeat that.
 

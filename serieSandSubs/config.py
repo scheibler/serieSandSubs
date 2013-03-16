@@ -79,6 +79,7 @@ class Config():
                 helper.clean_and_exit(2)
         # subtitle instance
         config['subtitles']['instance'] = None
+        config['subtitles']['delay'] = 0.0
 
         # add a few internal used paths to the config dictionary
         # no need to put them in the config file

@@ -52,7 +52,7 @@ def control_background_process():
             logging.critical("Can't get the length of the video file, MPlayer not accessible")
             helper.clean_and_exit(1)
         parsing_error_counter = parsing_error_counter +1
-        time.sleep(0.5)
+        time.sleep(1)
     # get video artist
     video_artist = None
     parsing_error_counter = 0
@@ -86,6 +86,7 @@ def control_background_process():
         print "Title: %s\nLength: %.2d:%.2d" % (video_title, video_length/60, video_length%60)
     else:
         print "Title: %s\nLength: %.2d:%.2d" % (os.path.basename(config['paths']['full_media_file']), video_length/60, video_length%60)
+    print "\n"
 
     old_sub = ""
     last_video_pos = 0
@@ -108,25 +109,27 @@ def control_background_process():
             continue
         else:
             parsing_error_counter = 0
-        # print current position
-        if abs(current_video_pos - print_position) > 300:
-            print "Current position: %.2d:%.2d of %.2d:%.2d (%.1f%%)" % (current_video_pos/60, current_video_pos%60, video_length/60, video_length%60, current_video_pos/video_length*100)
-            print_position = current_video_pos
+
         # if the file is playing (no pause)
         if current_video_pos - last_video_pos != 0:
+            print "\rCurent position: %.2d:%.2d of %.2d:%.2d (%.1f%%)" % \
+                    (current_video_pos/60, current_video_pos%60, \
+                    video_length/60, video_length%60, \
+                    current_video_pos/video_length*100),; sys.stdout.flush()
             # check if the subtitles should be activated / deactivated
             if (count_pause_cycles == 1 or count_pause_cycles == 2) and config['subtitles']['instance'] != None:
                 if show_subtitles == True:
                     show_subtitles = False
-                    print "subtitles deactivated"
+                    print "\nsubtitles deactivated"
                 else:
                     show_subtitles = True
-                    print "subtitles activated"
+                    print "\nsubtitles activated"
             if count_pause_cycles > 0:
                 count_pause_cycles = 0
             # subtitles
             if show_subtitles == True:
-                sub = config['subtitles']['instance'].get_current_subtitle(current_video_pos)
+                sub = config['subtitles']['instance'].get_current_subtitle( \
+                        current_video_pos - config['subtitles']['delay'])
                 if sub != old_sub and sub != "":
                     config['subtitles']['instance'].send_msg(config['subtitles']['recipients'], sub)
                     old_sub = sub
@@ -154,6 +157,8 @@ parser.add_argument("-f", "--from-beginning", action="store_true",
                     help="Start the media file from beginning regardless of the possibly remenered position")
 parser.add_argument("-s", "--subtitle-file",
                     help="Select a subtitle file. If no file is given the program tries to find a file based on the name of the given media file")
+parser.add_argument("-d", "--subtitle-delay",
+                    help="Specify a delay in seconds for the subtitles")
 parser.add_argument("-a", "--add-series", action="store_true",
                     help="If this option is set, the choosen media file is added as the start point of a series")
 parser.add_argument("-p", "--persistent", action="store_true",
@@ -163,6 +168,8 @@ parser.add_argument("-c", "--continuous-playback", action="store_true",
                     help="Continuous playback of the choosen series")
 parser.add_argument("-v", "--verbose", action="store_true",
                     help="Shows the error messages of MPlayer and increases the programs output")
+parser.add_argument("-V", "--version", action="store_true",
+                    help="Get current program version")
 parser.add_argument("mediafile", nargs="?", default="",
                     help="specify a media file name or specify parts of a series which should be resumed (must be encloesed in \"\").\
                     If nothing is entered, the program will list all saved series")
@@ -218,6 +225,11 @@ if os.path.exists(config['paths']['single_pos_file']) == False:
 ##################################
 # parse the command line arguments
 args = parser.parse_args()
+
+# version
+if args.version == True:
+    print "serieSandSubs version 0.1.1"
+    helper.clean_and_exit(0)
 
 # verbosity
 if args.verbose == True:
@@ -283,6 +295,12 @@ while True:
         else:
             subtitle_filename = ""
 
+    if args.subtitle_delay != None:
+        try:
+            config['subtitles']['delay'] = float(args.subtitle_delay)
+        except ValueError as e:
+            logging.critical("The subtitle delay must be a float")
+            helper.clean_and_exit(1)
 
     ###########################################
     # create the instance of the subtitles manager
@@ -297,12 +315,16 @@ while True:
     try:
         if subtitle_filename == "":
             subprocess.call([mplayer_path, "-af", "scaletempo=scale=1", "-ss", str(start_at),
-                            "-quiet", "-input", "file=" + mplayer_command_fifo, config['paths']['full_media_file']],
+                            "-quiet", "-input", "file=" + mplayer_command_fifo,
+                            "-subdelay", str(config['subtitles']['delay']),
+                            config['paths']['full_media_file']],
                             stdout=mplayer_output_file, stderr=mplayer_error_path)
         else:
             subprocess.call([mplayer_path, "-af", "scaletempo=scale=1", "-sub", subtitle_filename,
                             "-ss", str(start_at),"-quiet", "-input", "file=" + mplayer_command_fifo,
-                            config['paths']['full_media_file']], stdout=mplayer_output_file, stderr=mplayer_error_path)
+                            "-subdelay", str(config['subtitles']['delay']),
+                            config['paths']['full_media_file']],
+                            stdout=mplayer_output_file, stderr=mplayer_error_path)
     except OSError as e:
         logging.critical("Can't start Mplayer\n" + str(e))
         mplayer_output_file.close()
