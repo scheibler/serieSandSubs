@@ -60,8 +60,21 @@ class Config():
         # media manager
         config['media_manager']['instance'] = None
         config['media_manager']['end_of_video'] = False
+        config['media_manager']['sleep_timer'] = False
         if config['media_manager'].has_key("series file types") == False:
             config['media_manager']['series file types'] = [ "avi", "mpg", "mkv", "m4a" ]
+        try:
+            config['media_manager']['sleep time interval'] = int(config['media_manager']['sleep time interval'])
+        except ValueError as e:
+            config['media_manager']['sleep time interval'] = 5
+        except KeyError as e:
+            config['media_manager']['sleep time interval'] = 5
+        try:
+            config['media_manager']['pause between continuous playback'] = int(config['media_manager']['pause between continuous playback'])
+        except ValueError as e:
+            config['media_manager']['pause between continuous playback'] = 10
+        except KeyError as e:
+            config['media_manager']['pause between continuous playback'] = 10
 
         # subtitles section
         if config['general']['activate subtitles'].lower() == "yes":
@@ -89,6 +102,7 @@ class Config():
         config['paths']['mplayer_input'] = "/tmp/mplayer_control"
         config['paths']['mplayer_output'] = "/tmp/mplayer_output"
         config['paths']['full_media_file'] = ""
+        config['paths']['beep'] = settings_folder + "beep.ogg"
         return config
 
 

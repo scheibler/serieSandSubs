@@ -30,6 +30,7 @@ def send_command_to_mplayer(cmd):
                         return line.split("=")[1].strip()
                 except ValueError as e:
                     return -1
+
     # get title of file
     if cmd == "get_title":
         mplayer_cmd = open(config['paths']['mplayer_input'], "w")
@@ -49,6 +50,7 @@ def send_command_to_mplayer(cmd):
                         return line.split("=")[1].strip()
                 except ValueError as e:
                     return -1
+
     # length of file
     if cmd == "videolength":
         mplayer_cmd = open(config['paths']['mplayer_input'], "w")
@@ -65,6 +67,25 @@ def send_command_to_mplayer(cmd):
                     return float(line.split("=")[1].strip())
                 except ValueError as e:
                     return -1
+
+    # subtitle status
+    if cmd == "subtitle_visibility":
+        # send the get_time_pos command to the player
+        mplayer_cmd = open(config['paths']['mplayer_input'], "w")
+        mplayer_cmd.write("pausing_keep_force get_sub_visibility\n")
+        mplayer_cmd.close()
+        time.sleep(0.1)
+        # grep the new player output and parse the subtitle status
+        mplayer_output = open(config['paths']['mplayer_output'], "r")
+        out = mplayer_output.readlines()
+        mplayer_output.close()
+        for line in out:
+            if line.find("ANS_SUB_VISIBILITY") >= 0:
+                try:
+                    return int(line.split("=")[1].strip())
+                except ValueError as e:
+                    return -2
+
     # current file position
     if cmd == "currentpos":
         # send the get_time_pos command to the player
@@ -82,6 +103,14 @@ def send_command_to_mplayer(cmd):
                     return float(line.split("=")[1].strip())
                 except ValueError as e:
                     return -2
+
+    # quit player
+    if cmd == "quit":
+        mplayer_cmd = open(config['paths']['mplayer_input'], "w")
+        mplayer_cmd.write("pausing_keep_force quit\n")
+        mplayer_cmd.close()
+        time.sleep(0.1)
+        return 0
     return -3
 
 

@@ -213,8 +213,8 @@ class SeriesManager():
     def write_series_file(self, instance):
         try:
             instance.write()
-        except e:
-            logging.critical("SeriesManager.write_series_file: Can't write the current position into the stored series file" + str(e))
+        except:
+            logging.critical("SeriesManager.write_series_file: Can't write the current position into the stored series file")
             return False
         return True
 

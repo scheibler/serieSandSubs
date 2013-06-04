@@ -64,7 +64,23 @@ Installation
 Usage
 -----
 
-You can use MPlayer's standard key combinations to control the playback. If you've specified a
-subtitles file you can switch off the output by pressing space for pause, wait 1-2 seconds and press
-space again. If you want to resume the jabber output, simply repeat that.
+You can use MPlayer's standard key combinations to control the playback. The subtitle sending starts
+automatically, if you activated it in the serieSandSubs.conf file and if the Mplayer finds a .srt
+file in the video file directory. You can toggle the visibility and sending of the subtitles by
+pressing "v". It's also possible to manually specify a subtitle file with the "-s" option.
+
+With "./main.py -a /path/to/series/season1/episode1.avi" you add a series to the series manager. If
+you later run "./main.py" you get all added series and their positions. After you watched the last
+episode of the "season1" folder, the entry in the series manager is deleted automatically. To
+prevent that you must add the "-p" option to the add command above. This is useful, if a season is
+not complete yet.  This only must be done ones during adding.
+
+If you want to watch more than one episode, you can use "-c" for continuous playback.
+
+You also can activate a sleep timer with the command line option "-t". If activated, you hear a beep
+sound before the player is stopped. If you pause the video for one second, the system knows, that
+you're still awake and continues playback. After three beeps (interval 10 seconds) the Mplayer stops
+and remembers the position. The time between the interactions can be defined in the config file.
+Therewith this can work you must copy the beep.ogg file in the config folder in the Mplayer folder
+(~/.mplayer).
 

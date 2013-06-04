@@ -48,11 +48,11 @@ def control_background_process():
         if video_length > 0:
             parsing_error_counter = 0
             break
-        if parsing_error_counter >= 10:
+        if parsing_error_counter >= 5:
             logging.critical("Can't get the length of the video file, MPlayer not accessible")
             helper.clean_and_exit(1)
         parsing_error_counter = parsing_error_counter +1
-        time.sleep(1)
+        time.sleep(5)
     # get video artist
     video_artist = None
     parsing_error_counter = 0
@@ -92,10 +92,13 @@ def control_background_process():
     last_video_pos = 0
     count_pause_cycles = 0
     print_position = 0
+    last_sleep_timer_success = 0
+    number_of_beeps = 0
     while True:
         if config['media_manager']['end_of_video'] == True:
             return True
         current_video_pos = helper.send_command_to_mplayer("currentpos")
+        subtitle_visibility = helper.send_command_to_mplayer("subtitle_visibility")
         if current_video_pos < 0:
             if parsing_error_counter == 15:
                 logging.warning("Can't parse the MPlayer output")
@@ -109,23 +112,47 @@ def control_background_process():
             continue
         else:
             parsing_error_counter = 0
+        
+        # turn on / off subtitles
+        if config['subtitles']['instance'] != None:
+            if subtitle_visibility == 0 and show_subtitles == True:
+                show_subtitles = False
+                print "\nsubtitles deactivated"
+                config['subtitles']['instance'].send_msg(config['subtitles']['recipients'], "subtitles deactivated")
+            if subtitle_visibility == 1 and show_subtitles == False:
+                show_subtitles = True
+                print "\nsubtitles activated"
+                config['subtitles']['instance'].send_msg(config['subtitles']['recipients'], "subtitles activated")
+
+        # sleep timer
+        if config['media_manager']['sleep_timer'] == True:
+            diff = abs(current_video_pos - last_video_pos)
+            # reset if video was paused or user jumped more than 15 seconds
+            if diff == 0 or diff > 15:
+                last_sleep_timer_success = current_video_pos
+                number_of_beeps = 0
+
+            if (last_sleep_timer_success + config['media_manager']['sleep time interval'] * 60 - 30) < current_video_pos and number_of_beeps == 0:
+                subprocess.call([mplayer_path, "-quiet", config['paths']['beep']], \
+                        stdout=open("/dev/null", "w"), stderr=open("/dev/null", "w"))
+                number_of_beeps += 1
+            if (last_sleep_timer_success + config['media_manager']['sleep time interval'] * 60 - 20) < current_video_pos and number_of_beeps == 1:
+                subprocess.call([mplayer_path, "-quiet", config['paths']['beep']], \
+                        stdout=open("/dev/null", "w"), stderr=open("/dev/null", "w"))
+                number_of_beeps += 1
+            if (last_sleep_timer_success + config['media_manager']['sleep time interval'] * 60 - 10) < current_video_pos and number_of_beeps == 2:
+                subprocess.call([mplayer_path, "-quiet", config['paths']['beep']], \
+                        stdout=open("/dev/null", "w"), stderr=open("/dev/null", "w"))
+                number_of_beeps += 1
+            if (last_sleep_timer_success + config['media_manager']['sleep time interval'] * 60) < current_video_pos:
+                helper.send_command_to_mplayer("quit")
 
         # if the file is playing (no pause)
         if current_video_pos - last_video_pos != 0:
-            print "\rCurent position: %.2d:%.2d of %.2d:%.2d (%.1f%%)" % \
+            print "\rCurrent position: %.2d:%.2d of %.2d:%.2d (%.1f%%)" % \
                     (current_video_pos/60, current_video_pos%60, \
                     video_length/60, video_length%60, \
                     current_video_pos/video_length*100),; sys.stdout.flush()
-            # check if the subtitles should be activated / deactivated
-            if (count_pause_cycles == 1 or count_pause_cycles == 2) and config['subtitles']['instance'] != None:
-                if show_subtitles == True:
-                    show_subtitles = False
-                    print "\nsubtitles deactivated"
-                else:
-                    show_subtitles = True
-                    print "\nsubtitles activated"
-            if count_pause_cycles > 0:
-                count_pause_cycles = 0
             # subtitles
             if show_subtitles == True:
                 sub = config['subtitles']['instance'].get_current_subtitle( \
@@ -142,9 +169,6 @@ def control_background_process():
                     logging.error("Main.control_background_process: can't write the current playback position")
                     break
             last_video_pos = current_video_pos
-        else:
-            if count_pause_cycles < 3:
-                count_pause_cycles = count_pause_cycles +1
         time.sleep(0.33)
 
 
@@ -166,6 +190,9 @@ parser.add_argument("-p", "--persistent", action="store_true",
                             If this option is set, the series entry will persist in the list until it is deleted by the user (only useful with the -a option)")
 parser.add_argument("-c", "--continuous-playback", action="store_true",
                     help="Continuous playback of the choosen series")
+parser.add_argument("-t", "--sleep-timer", action="store_true",
+                    help="Turn on sleep timer. Then you must stop and start the movie at certain \
+                    intervals to verify, that you are still awake. Otherwise the playback will stop.")
 parser.add_argument("-v", "--verbose", action="store_true",
                     help="Shows the error messages of MPlayer and increases the programs output")
 parser.add_argument("-V", "--version", action="store_true",
@@ -274,6 +301,11 @@ else:
     config['paths']['full_media_file'] = os.path.realpath(media_file)
     config['media_manager']['instance'].store_series(config['paths']['full_media_file'], False, False)
 
+# sleep timer
+if args.sleep_timer == True:
+    config['media_manager']['sleep_timer'] = True
+
+
 while True:
     # should the file definitely played from beginning
     # if not, search for a potentially saved position in the remember_last_position file
@@ -332,10 +364,11 @@ while True:
 
     config['media_manager']['end_of_video'] = True
     if args.continuous_playback == True:
-        print("The next episode starts automatically in 5 seconds, press ENTER or Space to begin immediately or press q to quit: ")
+        print("The next episode starts automatically in %d seconds, press ENTER or Space to begin \
+                immediately or press q to quit: " % config['media_manager']['pause between continuous playback'])
         quit = False
         while True:
-            i, o, e = select.select( [sys.stdin], [], [], 5)
+            i, o, e = select.select( [sys.stdin], [], [], config['media_manager']['pause between continuous playback'])
             if (i):
                 key = ord(sys.stdin.read(1))
                 if key == 10 or key == 32:
