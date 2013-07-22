@@ -145,6 +145,7 @@ def control_background_process():
                         stdout=open("/dev/null", "w"), stderr=open("/dev/null", "w"))
                 number_of_beeps += 1
             if (last_sleep_timer_success + config['media_manager']['sleep time interval'] * 60) < current_video_pos:
+                config['media_manager']['closed_by_sleep_timer'] = True
                 helper.send_command_to_mplayer("quit")
 
         # if the file is playing (no pause)
@@ -162,8 +163,8 @@ def control_background_process():
                     old_sub = sub
             
             # current video position
-            # save the current position every 15 seconds
-            if abs(current_video_pos - config['media_manager']['instance'].get_playback_position(config['paths']['full_media_file'])[0]) > 15:
+            # save the current position every 5 seconds
+            if abs(current_video_pos - config['media_manager']['instance'].get_playback_position(config['paths']['full_media_file'])[0]) > 5:
                 updated = config['media_manager']['instance'].update_playback_position(config['paths']['full_media_file'], current_video_pos, video_length)
                 if updated == False:
                     logging.error("Main.control_background_process: can't write the current playback position")
@@ -255,7 +256,7 @@ args = parser.parse_args()
 
 # version
 if args.version == True:
-    print "serieSandSubs version 0.1.1"
+    print "serieSandSubs version 0.2.1"
     helper.clean_and_exit(0)
 
 # verbosity
@@ -363,9 +364,9 @@ while True:
         helper.clean_and_exit(1)
 
     config['media_manager']['end_of_video'] = True
-    if args.continuous_playback == True:
-        print("The next episode starts automatically in %d seconds, press ENTER or Space to begin \
-                immediately or press q to quit: " % config['media_manager']['pause between continuous playback'])
+    if args.continuous_playback == True and config['media_manager']['closed_by_sleep_timer'] == False:
+        print("\nThe next episode starts automatically in %d seconds, press ENTER or Space to begin \
+                immediately or press ESC or q to quit: " % config['media_manager']['pause between continuous playback'])
         quit = False
         while True:
             i, o, e = select.select( [sys.stdin], [], [], config['media_manager']['pause between continuous playback'])
@@ -374,7 +375,7 @@ while True:
                 if key == 10 or key == 32:
                     print "OK\n"
                     break
-                if key == 113:
+                if key == 113 or key == 27:
                     quit = True
                     break
             else:

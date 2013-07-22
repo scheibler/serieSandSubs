@@ -61,6 +61,7 @@ class Config():
         config['media_manager']['instance'] = None
         config['media_manager']['end_of_video'] = False
         config['media_manager']['sleep_timer'] = False
+        config['media_manager']['closed_by_sleep_timer'] = False
         if config['media_manager'].has_key("series file types") == False:
             config['media_manager']['series file types'] = [ "avi", "mpg", "mkv", "m4a" ]
         try:
