@@ -54,7 +54,10 @@ class SeriesManager():
                 print "%d. %s" % (index, s[s.lower().find("serien")+7:].replace("/"," - "))
             else:
                 s_split = s.split("/")
-                print "%d. %s - %s" % (index, s[s.__len__()-2], s[s.__len__()-1])
+                if s_split.__len__() >= 2:
+                    print "%d. %s - %s" % (index, s_split[s_split.__len__()-2], s_split[s_split.__len__()-1])
+                else:
+                    print "%d. %s" % (index, s)
             if matched_series[s]['episode'] == None:
                 print "   Next episode: Currently no episode available\n"
             else:
