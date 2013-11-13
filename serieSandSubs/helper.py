@@ -3,6 +3,9 @@ from config import Config
 import sys
 import os
 import time
+import magic
+import logging
+import subprocess
 
 def send_command_to_mplayer(cmd):
     config = sys.modules['Config'].get_config()
@@ -132,4 +135,30 @@ def clean_and_exit(exit_code):
     if config['subtitles']['instance'] != None:
         config['subtitles']['instance'].end()
     sys.exit(exit_code)
+
+def strip_html_from_subtitle_file(filename):
+    tmp_filename = "subfile_backslash"
+    new_filename = filename + ".new"
+    encoding = magic.from_file(filename).lower()
+    if encoding.find("utf-8") < 0:
+        logging.critical("The subtitle file is not in UTF-8 format. Please convert first")
+        clean_and_exit(3)
+    subtitles_with_backslash = ""
+    subfile = open(filename)
+    while True:
+        line = subfile.readline()
+        if line == "":
+            break
+        subtitles_with_backslash += "%s\\\n" % line.strip()
+    subfile.close()
+    subfile_backslash = open(tmp_filename, "w")
+    subfile_backslash.write(subtitles_with_backslash)
+    subfile_backslash.close()
+    subprocess.call(["pandoc", "-t", "plain", "-o", new_filename, tmp_filename])
+    if os.path.exists(new_filename) == False:
+        logging.critical("Can't strip html tags from subtitle file")
+        clean_and_exit(3)
+    os.remove(tmp_filename)
+    os.rename(filename, filename+".original")
+    os.rename(new_filename, filename)
 

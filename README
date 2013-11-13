@@ -38,9 +38,11 @@ I've defined:
 Dependencies
 ------------
 
+Linux based operating system
 Python version >= 2.7
 The installer for python modules (easy_install / setuptools)
 MPlayer
+pandoc for stripping html tags from subtitle file
 
 Python modules
 * sleekxmpp: XMPP library
@@ -55,7 +57,7 @@ A few optional python packages
 Installation
 ------------
 
-1. sudo apt-get install python-pyasn1 python-dnspython python-setuptools mplayer git
+1. sudo apt-get install python-pyasn1 python-dnspython python-setuptools mplayer git pandoc
 2. sudo easy_install python-magic sleekxmpp configobj
 3. git clone https://github.com/urdahn/serieSandSubs.git
 4. Copy the config files from the config folder into the MPlayer folder ~/.mplayer/
@@ -83,4 +85,15 @@ you're still awake and continues playback. After three beeps (interval 10 second
 and remembers the position. The time between the interactions can be defined in the config file.
 Therewith this can work you must copy the beep.ogg file in the config folder in the Mplayer folder
 (~/.mplayer).
+
+The program awaits the subtitle files in a UTF-8 encoding. To check the file encoding you can use:
+file subtitle_file.srt
+If your downloaded file is not UTF-8 encoded, convert it first, for example, the following command
+works for many western european languages:
+iconv -f ISO-8859-1 -t UTF-8 input.srt -o output.srt
+
+If the subtitle file does not match the video file exactly, you can specify an offset delay in seconds with
+the -d option. For example this could be necessary, if the video file starts with a trailer or a summery of
+previously happened scenes but the subtitles directly begin with the movie. The delay is a floating
+point number and can be positive or negative.
 

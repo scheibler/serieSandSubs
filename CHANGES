@@ -2,3 +2,4 @@ v0.1.0, 2012.10.28 -- Initial release.
 v0.1.1, 2013.03.16 -- subtitle delay function and continuous playback time output
 v0.2.0, 2013.06.04 -- added sleep timer, linked subtitle sending to the Mplayer key "v"
 v0.2.1, 2013.07.22 -- Fixed: continuous playback stops, if sleep timer is set
+v0.3.0, 2013.11.13 -- included pandoc for stripping html tags from subtitle files

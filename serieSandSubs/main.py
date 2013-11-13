@@ -327,13 +327,29 @@ while True:
             subtitle_filename = media_file_without_ext[0] + ".srt"
         else:
             subtitle_filename = ""
-
-    if args.subtitle_delay != None:
-        try:
-            config['subtitles']['delay'] = float(args.subtitle_delay)
-        except ValueError as e:
-            logging.critical("The subtitle delay must be a float")
-            helper.clean_and_exit(1)
+    # strip html tags from subtitle file
+    if subtitle_filename != "":
+        helper.strip_html_from_subtitle_file(subtitle_filename)
+        # subtitle offset
+        if args.subtitle_delay != None:
+            try:
+                config['subtitles']['delay'] = float(args.subtitle_delay)
+            except ValueError as e:
+                logging.critical("The subtitle delay must be a float")
+                helper.clean_and_exit(1)
+        else:
+            sys.stdout.write("Enter offset value for subtitle file and press ENTER, For no offset, enter nothing: ")
+            sys.stdout.flush()
+            i, o, e = select.select( [sys.stdin], [], [], 15)
+            if (i):
+                input = sys.stdin.readline().strip()
+                if input != "":
+                    try:
+                        config['subtitles']['delay'] = float(input)
+                    except ValueError as e:
+                        logging.critical("The subtitle delay must be a float")
+                        helper.clean_and_exit(1)
+        print "\nSubtitle offset: %.1f seconds" % config['subtitles']['delay']
 
     ###########################################
     # create the instance of the subtitles manager
