@@ -91,6 +91,7 @@ file subtitle_file.srt
 If your downloaded file is not UTF-8 encoded, convert it first, for example, the following command
 works for many western european languages:
 iconv -f ISO-8859-1 -t UTF-8 input.srt -o output.srt
+This conversion is automatically done for ISO-8859-1 encoded subtitle files.
 
 If the subtitle file does not match the video file exactly, you can specify an offset delay in seconds with
 the -d option. For example this could be necessary, if the video file starts with a trailer or a summery of

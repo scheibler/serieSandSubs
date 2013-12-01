@@ -1,11 +1,7 @@
 from configobj import ConfigObj
 from config import Config
-import sys
-import os
-import time
+import sys, logging, os, time, shutil, subprocess
 import magic
-import logging
-import subprocess
 
 def send_command_to_mplayer(cmd):
     config = sys.modules['Config'].get_config()
@@ -137,27 +133,58 @@ def clean_and_exit(exit_code):
     sys.exit(exit_code)
 
 def strip_html_from_subtitle_file(filename):
-    tmp_filename = "subfile_backslash"
+    tmp_filename = "temp_subtitle_file"
     new_filename = filename + ".new"
+    # try to convert subtitle file encodign to utf-8 if not already done
+    # at the moment, we only can do this automatically for ISO-8859-1 encodings
     encoding = magic.from_file(filename).lower()
-    if encoding.find("utf-8") < 0:
-        logging.critical("The subtitle file is not in UTF-8 format. Please convert first")
+    if encoding.find("utf-8") >= 0:
+        try:
+            shutil.copy(filename, tmp_filename)
+        except IOError as e:
+            logging.critical("Can't copy the subtitle file, no write permission")
+            clean_and_exit(3)
+    elif encoding.find("iso-8859") >= 0:
+        # cause we cant detect exact encoding, ISO-8859-1 is used
+        subprocess.call(["iconv", "-f", "ISO-8859-1", "-t", "UTF-8", filename, "-o", tmp_filename])
+        if os.path.exists(tmp_filename) == False:
+            logging.critical("Error during subtitle file conversion")
+            clean_and_exit(3)
+    else:
+        logging.critical("The subtitle file has an unknown encoding. Please convert first")
         clean_and_exit(3)
+    # next, read subtitle file and add a backslash at every line end
+    # that's a preparation for the html stripping done by pandoc later
     subtitles_with_backslash = ""
-    subfile = open(filename)
+    subfile = open(tmp_filename)
     while True:
         line = subfile.readline()
         if line == "":
             break
-        subtitles_with_backslash += "%s\\\n" % line.strip()
+        subtitles_with_backslash += "%s\\\n" % line.replace("`","'").strip()
     subfile.close()
-    subfile_backslash = open(tmp_filename, "w")
-    subfile_backslash.write(subtitles_with_backslash)
-    subfile_backslash.close()
+    subfile = open(tmp_filename, "w")
+    subfile.write(subtitles_with_backslash)
+    subfile.close()
+    # next, call pandoc to do the html tag stripping
     subprocess.call(["pandoc", "-t", "plain", "-o", new_filename, tmp_filename])
     if os.path.exists(new_filename) == False:
         logging.critical("Can't strip html tags from subtitle file")
         clean_and_exit(3)
+    # pandoc creates two spaces at every line end --> strip them
+    subtitles_without_spaces = ""
+    subfile = open(new_filename)
+    while True:
+        line = subfile.readline()
+        if line == "":
+            break
+        subtitles_without_spaces += "%s\n" % line.strip()
+    subfile.close()
+    subfile = open(new_filename, "w")
+    subfile.write(subtitles_without_spaces)
+    subfile.close()
+    # lastly we rename the files
+    # keep original subtitle file and delete temp file
     os.remove(tmp_filename)
     os.rename(filename, filename+".original")
     os.rename(new_filename, filename)
