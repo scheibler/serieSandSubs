@@ -4,3 +4,4 @@ v0.2.0, 2013.06.04 -- added sleep timer, linked subtitle sending to the Mplayer 
 v0.2.1, 2013.07.22 -- Fixed: continuous playback stops, if sleep timer is set
 v0.3.0, 2013.11.13 -- included pandoc for stripping html tags from subtitle files
 v0.3.1, 2013.12.01 -- Fixes in the html stripping function, ISO-8859-1 encoded subtitle files are converted automatically now
+v0.3.2, 2013.12.29 -- Further fixes in the html stripping function (replaced dollar sign in subtitles)

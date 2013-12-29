@@ -161,7 +161,10 @@ def strip_html_from_subtitle_file(filename):
         line = subfile.readline()
         if line == "":
             break
-        subtitles_with_backslash += "%s\\\n" % line.replace("`","'").strip()
+        line = line.replace("`","'")
+        line = line.replace("$","Dollar ")
+        line = line.strip()
+        subtitles_with_backslash += "%s\\\n" % line
     subfile.close()
     subfile = open(tmp_filename, "w")
     subfile.write(subtitles_with_backslash)
