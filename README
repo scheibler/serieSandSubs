@@ -59,9 +59,9 @@ Installation
 
 1. sudo apt-get install python-pyasn1 python-dnspython python-setuptools mplayer git pandoc
 2. sudo easy_install python-magic sleekxmpp configobj
-3. git clone https://github.com/urdahn/serieSandSubs.git
+3. git clone https://github.com/scheibler/serieSandSubs.git
 4. Copy the config files from the config folder into the MPlayer folder ~/.mplayer/
-5. start the program either with "python serieSandSubs/main.py" or "./serieSandSubs/main.py"
+5. start the program either with "python serieSandSubs/src/main.py" or "./serieSandSubs/src/main.py"
 
 Usage
 -----
@@ -79,7 +79,7 @@ not complete yet.  This only must be done ones during adding.
 
 If you want to watch more than one episode, you can use "-c" for continuous playback.
 
-You also can activate a sleep timer with the command line option "-t". If activated, you hear a beep
+You can also activate a sleep timer with the command line option "-t". If activated, you hear a beep
 sound before the player is stopped. If you pause the video for one second, the system knows, that
 you're still awake and continues playback. After three beeps (interval 10 seconds) the Mplayer stops
 and remembers the position. The time between the interactions can be defined in the config file.
